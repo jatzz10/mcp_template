@@ -1,302 +1,272 @@
-# MCP Server & Client Template
+# MCP Server Templates
 
-A template for building Model Context Protocol (MCP) servers and clients with support for multiple data sources.
-
-## 🏗️ Architecture
-
-```
-template/
-├── mcp_server/                 # MCP Server Template
-│   ├── base/                   # Abstract base classes
-│   ├── datasources/            # Data source implementations
-│   │   ├── mysql/              # MySQL data source
-│   │   ├── rest_api/           # REST API data source
-│   │   └── __init__.py
-│   ├── core/                   # Core MCP server logic
-│   └── config/                 # Configuration management
-├── mcp_client/                 # MCP Client Template
-│   ├── fastapi/                # FastAPI REST client
-│   ├── chat/                   # Chat client (optional)
-│   └── base/                   # Abstract client classes
-├── examples/                   # Example implementations
-└── docs/                       # Documentation
-```
+Complete, production-ready templates for building Model Context Protocol (MCP) servers. Each template is self-contained and focused on a specific data source type.
 
 ## 🚀 Quick Start
 
-### 1. Create a New MCP Server
+### 1. Choose Your Template
 
-```python
-from template.mcp_server.base import MCPDataSource, MCPServer
-from template.mcp_server.datasources.rest_api import RestAPIDataSource
+| Template | Data Source | Resource URI | Description |
+|----------|-------------|--------------|-------------|
+| **db-mcp-server** | Database | `schema://database` | MySQL, PostgreSQL, SQLite support |
+| **rest-api-mcp-server** | REST API | `endpoints://api` | HTTP API integration |
+| **filesystem-mcp-server** | File System | `structure://filesystem` | File and directory access |
+| **jira-mcp-server** | JIRA | `workflows://jira` | Project management |
 
-class MyAPIDataSource(MCPDataSource):
-    def __init__(self, config):
-        self.api_url = config['api_url']
-        self.api_key = config['api_key']
-    
-    async def get_schema(self):
-        # Return your API schema
-        pass
-    
-    async def query(self, query_params):
-        # Execute API calls
-        pass
+### 2. Copy and Run
 
-# Create server
-server = MCPServer("my-api-server")
-server.add_data_source("api", MyAPIDataSource(config))
-server.run()
+```bash
+# Copy the template you need
+cp -r templates/db-mcp-server/ my-database-server/
+cd my-database-server/
+
+# Configure environment
+cp env.example .env
+nano .env  # Set your credentials
+
+# Install and run
+pip install -r requirements.txt
+python mcp_server.py
 ```
 
-### 2. Create a FastAPI Client
+## 📁 Template Structure
 
-```python
-from template.mcp_client.fastapi import MCPFastAPIClient
+Each template is completely self-contained:
 
-app = MCPFastAPIClient(
-    server_url="http://localhost:8000/mcp",
-    llm_client=your_llm_client
-)
-
-# Your FastAPI routes will have access to MCP tools
-@app.post("/query")
-async def query_endpoint(request: QueryRequest):
-    result = await app.mcp_client.call_tool("query_api", request.dict())
-    return result
+```
+template-name/
+├── mcp_server.py          # Complete, ready-to-run server
+├── requirements.txt       # Only needed dependencies
+├── env.example           # Environment variables template
+├── README.md             # Template-specific documentation
+├── test_template.py      # Template-specific tests
+└── examples/             # Usage examples (optional)
 ```
 
-## 📋 Data Source Types
+## 🎯 Template Features
 
-### MySQL Data Source
-- Schema generation and caching
-- Query execution with limits
-- Connection pooling
+### **Self-Contained**
+- ✅ **Copy and run** - No complex setup required
+- ✅ **Focused dependencies** - Only what you need
+- ✅ **Simple configuration** - Environment variables only
+- ✅ **Complete documentation** - Everything in one place
 
-### REST API Data Source
-- Endpoint discovery
-- Authentication handling
-- Rate limiting
+### **Production Ready**
+- ✅ **Security validation** - Query validation and path restrictions
+- ✅ **Error handling** - Graceful degradation
+- ✅ **Caching system** - File-based and memory caching
+- ✅ **Health monitoring** - Built-in health checks
+- ✅ **Logging** - Configurable logging levels
+
+### **MCP Compliant**
+- ✅ **Static data resources** - Proper resource URIs
+- ✅ **MCP tools** - Query execution and cache management
+- ✅ **Streamable HTTP** - Modern transport protocol
+- ✅ **Standard interfaces** - Compatible with MCP clients
+
+## 📊 Template Details
+
+### Database MCP Server (`db-mcp-server`)
+
+**Supports:** MySQL, PostgreSQL, SQLite
+
+**Features:**
+- Database schema caching and auto-refresh
+- SQL query execution with security validation
+- Multiple database type support
+- Connection pooling and error handling
+
+**Quick Setup:**
+```bash
+cp -r templates/db-mcp-server/ my-db-server/
+cd my-db-server/
+cp env.example .env
+# Edit .env with your database credentials
+pip install -r requirements.txt
+python mcp_server.py
+```
+
+**Environment Variables:**
+```bash
+DB_TYPE=mysql                    # mysql, postgresql, sqlite
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=password
+DB_NAME=my_database
+```
+
+### REST API MCP Server (`rest-api-mcp-server`)
+
+**Supports:** Any REST API with authentication
+
+**Features:**
+- Multiple authentication methods (Bearer, Basic, API Key)
+- Automatic endpoint discovery
+- Rate limiting and retry logic
 - Response caching
 
-### Custom Data Sources
-- Implement `MCPDataSource` interface
-- Add schema generation
-- Define query methods
-
-## 🔧 Configuration
-
-```yaml
-# config.yaml
-server:
-  name: "my-mcp-server"
-  transport: "streamable-http"
-  port: 8000
-
-datasources:
-  mysql:
-    enabled: true
-    host: "localhost"
-    database: "my_db"
-  
-  rest_api:
-    enabled: true
-    base_url: "https://api.example.com"
-    auth_type: "bearer"
+**Quick Setup:**
+```bash
+cp -r templates/rest-api-mcp-server/ my-api-server/
+cd my-api-server/
+cp env.example .env
+# Edit .env with your API credentials
+pip install -r requirements.txt
+python mcp_server.py
 ```
 
-## 📚 Best Practices
+**Environment Variables:**
+```bash
+API_BASE_URL=https://api.example.com
+API_AUTH_TYPE=bearer
+API_AUTH_TOKEN=your_token
+```
 
-1. **Schema Caching**: All data sources implement smart caching
-2. **Error Handling**: Consistent error responses across all sources
-3. **Security**: Input validation and query sanitization
-4. **Performance**: Connection pooling and response caching
-5. **Monitoring**: Built-in logging and metrics
-6. **Testing**: Comprehensive test templates included
+### FileSystem MCP Server (`filesystem-mcp-server`)
+
+**Supports:** Local file systems
+
+**Features:**
+- Directory traversal with depth limits
+- File content reading and search
+- Security path restrictions
+- File type categorization
+
+**Quick Setup:**
+```bash
+cp -r templates/filesystem-mcp-server/ my-fs-server/
+cd my-fs-server/
+cp env.example .env
+# Edit .env with your file system path
+pip install -r requirements.txt
+python mcp_server.py
+```
+
+**Environment Variables:**
+```bash
+FILESYSTEM_ROOT_PATH=/path/to/directory
+FILESYSTEM_MAX_DEPTH=5
+FILESYSTEM_INCLUDE_HIDDEN=false
+```
+
+### JIRA MCP Server (`jira-mcp-server`)
+
+**Supports:** JIRA Cloud and Server
+
+**Features:**
+- Project and issue management
+- Workflow and custom field access
+- JQL query support
+- User and permission information
+
+**Quick Setup:**
+```bash
+cp -r templates/jira-mcp-server/ my-jira-server/
+cd my-jira-server/
+cp env.example .env
+# Edit .env with your JIRA credentials
+pip install -r requirements.txt
+python mcp_server.py
+```
+
+**Environment Variables:**
+```bash
+JIRA_BASE_URL=https://your-domain.atlassian.net
+JIRA_USERNAME=your-email@example.com
+JIRA_API_TOKEN=your-api-token
+JIRA_PROJECT_KEY=PROJ
+```
 
 ## 🧪 Testing
 
-### Quick Test (5 minutes)
+Each template includes its own test suite:
 
 ```bash
-# 1. Install dependencies
-pip install aiohttp pyyaml fastapi uvicorn
-
-# 2. Run comprehensive test
+# Test the template
 python test_template.py
 
-# 3. Start template server
-python run_template_server.py
-
-# 4. Test template client (in another terminal)
-python test_template_client.py
+# Test with MCP client
+python test_client.py
 ```
 
-### Detailed Testing Steps
+## 🔧 Customization
 
-#### Step 1: Test All Components
-```bash
-# Run the comprehensive test script
-python test_template.py
+### Adding New Features
+
+1. **Extend the server class** - Add new methods to the main server class
+2. **Add new tools** - Register additional MCP tools
+3. **Add new resources** - Register additional MCP resources
+4. **Update configuration** - Add new environment variables
+
+### Example: Adding Custom Tool
+
+```python
+@self.mcp.tool()
+async def custom_tool(param1: str, param2: int = 100) -> str:
+    """Custom tool description"""
+    try:
+        # Your custom logic here
+        result = await self.custom_method(param1, param2)
+        return json.dumps(result, indent=2)
+    except Exception as e:
+        return json.dumps({"error": str(e)})
 ```
 
-Expected output:
-```
-🚀 Testing MCP Template with Current MySQL Setup
-✅ MySQL Data Source: PASS
-✅ MCP Server: PASS  
-✅ FastAPI Client: PASS
-🎉 All tests passed! Template is ready to use.
-```
+## 📚 Documentation
 
-#### Step 2: Start Template Server
-```bash
-# Start the template MCP server (uses port 8002)
-python run_template_server.py
-```
+Each template includes:
 
-You should see:
-```
-🚀 Starting Template MCP Server with MySQL
-📊 MySQL Config: mcp_test@localhost:3306/mcp_test_db
-✅ Server created with data sources: ['mysql']
-🌐 Server URL: http://127.0.0.1:8002/mcp
-```
+- **README.md** - Complete setup and usage guide
+- **env.example** - Environment variables template
+- **config.yaml** - Configuration file
+- **test_template.py** - Test suite
+- **examples/** - Usage examples
 
-#### Step 3: Test Template Client
-```bash
-# In another terminal, test the template client
-python test_template_client.py
-```
+## 🆘 Support
 
-Expected output:
-```
-🧪 Testing Template MCP Client
-✅ Connected to template server
-✅ Query executed successfully
-✅ Schema resource retrieved
-✅ Template client test completed successfully!
-```
+### Common Issues
 
-#### Step 4: Compare with Current Setup
-```bash
-# Start your current server (port 8000)
-python ../mysql_mcp_server.py
+1. **Connection Failed**
+   - Check credentials and network connectivity
+   - Verify service is running
+   - Check firewall settings
 
-# Start template server (port 8002)
-python run_template_server.py
+2. **Permission Denied**
+   - Verify user permissions
+   - Check file system access rights
+   - Ensure proper authentication
 
-# Test both with the same client
-python ../test_mcp_client.py  # Tests current server
-python test_template_client.py  # Tests template server
-```
+3. **Configuration Error**
+   - Verify environment variables
+   - Check configuration file syntax
+   - Validate data source settings
 
-#### Step 5: Test FastAPI REST Client
-```bash
-# Start template server first
-python run_template_server.py
+### Getting Help
 
-# In another terminal, start FastAPI client
-python examples/fastapi_client.py
+1. **Check template README** - Each template has specific documentation
+2. **Review environment setup** - Ensure all required variables are set
+3. **Test connectivity** - Use the test scripts to verify setup
+4. **Check logs** - Enable debug logging for detailed information
 
-# Test REST endpoints
-curl http://localhost:3000/health
-curl http://localhost:3000/tools
-curl -X POST http://localhost:3000/query \
-  -H "Content-Type: application/json" \
-  -d '{"query": "SELECT * FROM users LIMIT 3", "limit": 10}'
-```
+## 🎉 Benefits
 
-### Test Scripts
+### **For Teams**
+- ✅ **Faster adoption** - Copy and run in minutes
+- ✅ **Focused learning** - Only relevant information
+- ✅ **Easier maintenance** - Self-contained templates
+- ✅ **Better testing** - Template-specific test suites
 
-- **`test_template.py`**: Comprehensive test of all template components
-- **`run_template_server.py`**: Start the template MCP server
-- **`test_template_client.py`**: Test the template MCP client
-- **`examples/mysql_server.py`**: Example MySQL server implementation
-- **`examples/fastapi_client.py`**: Example FastAPI client implementation
+### **For Developers**
+- ✅ **Clear structure** - Easy to understand and modify
+- ✅ **Production ready** - Built-in security and error handling
+- ✅ **Extensible** - Easy to add new features
+- ✅ **Well documented** - Complete documentation and examples
 
-### 🔧 Troubleshooting
+## 📄 License
 
-#### Common Issues
+These templates are provided as-is for teams to build upon. Customize and modify as needed for your specific use cases.
 
-**Import Errors**
-```bash
-# Make sure you're in the template directory
-cd template/
+---
 
-# Install missing dependencies
-pip install aiohttp pyyaml fastapi uvicorn
-```
-
-**MySQL Connection Issues**
-```bash
-# Check environment variables
-echo $MYSQL_USER
-echo $MYSQL_PASSWORD  
-echo $MYSQL_DATABASE
-
-# Test MySQL connection directly
-mysql -h localhost -u mcp_test -p mcp_test_db -e "SELECT 1"
-```
-
-**Port Conflicts**
-```bash
-# Check what's running on ports
-lsof -i :8000
-lsof -i :8002
-lsof -i :3000
-
-# Kill processes if needed
-kill -9 <PID>
-```
-
-**Template Server Won't Start**
-```bash
-# Check dependencies
-pip install fastmcp aiohttp pyyaml
-
-# Check Python version (should be 3.8+)
-python --version
-
-# Run with debug logging
-python -c "
-import logging
-logging.basicConfig(level=logging.DEBUG)
-import run_template_server
-"
-```
-
-#### Expected Test Results
-
-**Successful Test Output:**
-```
-🚀 Testing MCP Template with Current MySQL Setup
-✅ MySQL Data Source: PASS
-✅ MCP Server: PASS
-✅ FastAPI Client: PASS
-🎉 All tests passed! Template is ready to use.
-```
-
-**Template Server Output:**
-```
-🚀 Starting Template MCP Server with MySQL
-📊 MySQL Config: mcp_test@localhost:3306/mcp_test_db
-✅ Server created with data sources: ['mysql']
-🌐 Server URL: http://127.0.0.1:8002/mcp
-```
-
-**Template Client Output:**
-```
-🧪 Testing Template MCP Client
-✅ Connected to template server
-✅ Query executed successfully
-✅ Schema resource retrieved
-✅ Template client test completed successfully!
-```
-
-## 📖 Documentation
-
-- [Data Source Development Guide](docs/datasource_guide.md)
-- [FastAPI Client Guide](docs/fastapi_client.md)
-- [Configuration Reference](docs/configuration.md)
-- [Deployment Guide](docs/deployment.md)
+**Ready to get started?** Choose your template and follow the quick start guide! 🚀
